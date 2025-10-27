@@ -5,8 +5,9 @@
 #include <string>
 #include <vector>
 
+// 時系列で与えられるそれぞれの signature
 template <typename Number, typename TimeStamp = double> struct TimedWordEvent {
-  std::size_t actionId;
+  std::size_t actionId; //signature名
   std::vector<std::string> strings;
   std::vector<Number> numbers;
   TimeStamp timestamp;

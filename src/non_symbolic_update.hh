@@ -13,6 +13,7 @@
 #include "non_symbolic_string_constraint.hh"
 
 namespace NonSymbolic {
+  //stringEnv と numberEnv が制約を満たすかどうか
   template <typename Number>
   bool eval(const std::vector<StringConstraint> &stringConstraints, StringValuation &stringEnv,
             const std::vector<NumberConstraint<Number>> &numConstraints, const NumberValuation<Number> &numEnv) {

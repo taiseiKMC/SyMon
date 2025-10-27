@@ -26,6 +26,23 @@ using NonSymbolic::operator<<;
 using std::operator<<;
 using ::operator<<;
 
+/*
+ * Parametric の引数によって template 引数が変わる
+ * TA : TimedAutomaton in {Parametric, DataParametric, NonParametricTA<Number>}
+ * BoostTA : BoostTAType in {BoostPTA, DataParametricBoostTA, NonParametricBoostTA<Number>}
+ * Number : number type in {PPLRational, Parma_Polyhedra_Library::Coefficient, Number(=double)}
+ * Timestamp : timestamp type in {PPLRational, double}
+ * Monitor : monitor type in {ParametricMonitor, DataParametricMonitor, BooleanMonitor}
+ * Printer : printer type in {ParametricPrinter, DataParametricPrinter, BooleanPrinter}
+ * StringConstraint : string constraint type in {Symbolic::StringConstraint, NonSymbolic::StringConstraint}
+ * NumberConstraint : number constraint type in {Symbolic::NumberConstraint, NonSymbolic::NumberConstraint}
+ * TimingConstraintType : timing constraint type in {ParametricTimingConstraint, std::vector<TimingConstraint>}
+ * UpdateType : update type in {Symbolic::Update, NonSymbolic::Update}
+ * 
+ * Symbolic と NonSymbolic は symbolic_number_constraint.hh, non_symbolic_constraint.hh で定義されている namespace
+ * 
+*/
+
 /*!
  * @brief Execute the monitoring procedure
  *
@@ -39,7 +56,7 @@ template <typename TAType, typename BoostTAType, typename Number, typename Times
 int execute(const std::string &timedAutomatonFileName, const std::string &signatureFileName,
             const std::string &timedWordFileName, bool useNewSyntax = false) {
   TAType TA;
-  Signature signature;
+  Signature signature; // .symon ファイルがあればそこから読む。なければ signature ファイルでフォーマットを与えていそう(構文？)
 
   // Open the automaton file
   std::ifstream taStream(timedAutomatonFileName);
@@ -66,7 +83,7 @@ int execute(const std::string &timedAutomatonFileName, const std::string &signat
     // Use the old syntax parser
     BoostTAType BoostTA;
     parseBoostTA(taStream, BoostTA);
-    convBoostTA(BoostTA, TA);
+    convBoostTA(BoostTA, TA); //ParametricTA かどうかで関数が分岐する. TA を参照渡ししている(初期化？)
 
     // read signature file
     std::fstream signatureStream(signatureFileName);
@@ -85,7 +102,7 @@ int execute(const std::string &timedAutomatonFileName, const std::string &signat
   monitor->addObserver(printer);
 
   // construct TimedWordParser
-  std::unique_ptr<TimedWordParser<Number, Timestamp>> timedWordParser;
+  std::unique_ptr<TimedWordParser<Number, Timestamp>> timedWordParser; //時系列の入力データ
   std::fstream timedWordFileStream;
   if (timedWordFileName == "stdin") {
     timedWordParser = std::make_unique<TimedWordParser<Number, Timestamp>>(std::cin, signature);
@@ -100,7 +117,7 @@ int execute(const std::string &timedAutomatonFileName, const std::string &signat
 
   // construct TimedWordSubject
   TimedWordSubject<Number, Timestamp> timedWordSubject(std::move(timedWordParser));
-  timedWordSubject.addObserver(monitor);
+  timedWordSubject.addObserver(monitor); //add というか set に近い(monitor は一つしか持てない)
 
   // monitor all
   timedWordSubject.parseAndSubjectAll();
