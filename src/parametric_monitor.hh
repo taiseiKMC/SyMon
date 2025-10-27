@@ -243,6 +243,7 @@ public:
           }
           if (transition.target.lock()->isMatch) {
             notifyObservers({index, timestamp, nextNEnv, nextSEnv, nextCVal});
+            // print する
           }
         }
       }

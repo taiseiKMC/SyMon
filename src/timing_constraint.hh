@@ -98,9 +98,11 @@ public:
 
 using TimingValuation = std::vector<double>;
 
+// clock 変数が guard を満たすかどうか
 static bool eval(const TimingValuation &clockValuation, const std::vector<TimingConstraint> &guard) {
   return std::all_of(guard.begin(), guard.end(),
                      [&clockValuation](const TimingConstraint &g) { return g.satisfy(clockValuation.at(g.x)); });
+  // g.x : clock variable
 }
 
 /*!

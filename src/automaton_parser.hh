@@ -391,6 +391,7 @@ static inline void parseBoostTA(std::istream &file, BoostPTA &BoostTA) {
   boost::read_graphviz(file, BoostTA, dp, "id");
 }
 
+// boostTA から TA へ変換している？
 template <typename StringConstraint, typename NumberConstraint, typename TimingConstraint, typename Update>
 static inline void
 convBoostTA(const BoostTimedAutomaton<StringConstraint, NumberConstraint, TimingConstraint, Update> &BoostTA,
