@@ -54,3 +54,7 @@ cmake-build-release
 *.fdb_latexmk
 paper/SymbMon.log
 
+.cache/*
+LastTest.log
+CTestCostData.txt
+settings.json
