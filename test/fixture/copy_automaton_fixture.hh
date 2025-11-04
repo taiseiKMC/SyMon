@@ -5,6 +5,9 @@
 #include "automaton.hh"
 #include "signature.hh"
 
+//copy のオートマトンを構築している
+// example/copy/copy.dot と同じオートマトン
+// コンストラクタがこのファイルの全てを占めている
 /*
   @brief This automaton accepts "copy" behavior.
 */

@@ -46,10 +46,11 @@ BOOST_AUTO_TEST_SUITE(DataParametricMonitorTest)
 
 BOOST_FIXTURE_TEST_CASE(test1, CopyDataParametricMonitorFixture)
 {
-  std::vector<TWEvent> dummyTimedWord(3);
-  dummyTimedWord[0] = {0, {"x"}, {100}, 0.1};
-  dummyTimedWord[1] = {0, {"y"}, {200}, 10};
-  dummyTimedWord[2] = {0, {"x"}, {200}, 15};
+  std::vector<TWEvent> dummyTimedWord(4);
+  dummyTimedWord[0] = {0, {"x"}, {50}, 0.1};
+  dummyTimedWord[1] = {0, {"x"}, {51, 2}, 1.5};
+  dummyTimedWord[2] = {0, {"y"}, {200}, 10};
+  dummyTimedWord[3] = {0, {"x"}, {200}, 15};
   feed(std::move(dummyTimedWord));
   BOOST_TEST(resultVec.empty());
 }
@@ -58,9 +59,9 @@ BOOST_FIXTURE_TEST_CASE(test2, CopyDataParametricMonitorFixture)
 {
   std::vector<TWEvent> dummyTimedWord(4);
   dummyTimedWord[0] = {0, {"x"}, {100}, 0.1};
-  dummyTimedWord[1] = {0, {"y"}, {200}, 10};
-  dummyTimedWord[2] = {0, {"x"}, {200}, 12};
-  dummyTimedWord[3] = {0, {"z"}, {200}, 15.5};
+  dummyTimedWord[1] = {0, {"y"}, {100, 3}, 10};
+  dummyTimedWord[2] = {0, {"x"}, {100, 3}, 12};
+  dummyTimedWord[3] = {0, {"z"}, {100, 3}, 15.5};
   feed(std::move(dummyTimedWord));
   BOOST_CHECK_EQUAL(resultVec.size(), 1);
   BOOST_CHECK_EQUAL(resultVec.front().index, 3);

@@ -93,6 +93,14 @@ https://github.com/MasWag/SyMon/issues/
   * 分数, Parma_Polyhedra_Library::Coefficient(多分整数) を使って定義してある
   * 少数をパースしてそう
 
+* automaton.hh
+  * Automaton : state, initialstate の集合
+  * AutomatonState : isMatch(受理状態フラグ？) と next (Action -> vector<Transition>(stringConstraint, numberConstraint, guard 等) の map)
+    * 非決定性のために Transition は vector になっているらしい
+  * stringConstraint : string の制約
+  * numberConstraint : number の制約
+  * guard : 多分 clock に関する制約
+
 # MTG Note
 ## 10/19
 #5-#8 は fully-parametric では実装済み, boolean monitor では扱えない
