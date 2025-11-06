@@ -29,7 +29,7 @@ struct ParametricMonitorResult {
 class ParametricMonitor : public SingleSubject<ParametricMonitorResult>,
                           public Observer<TimedWordEvent<PPLRational, PPLRational>> {
 public:
-  static const constexpr std::size_t unobservableActinoID = 127;
+  static const constexpr std::size_t unobservableActionID = 127;
 
   explicit ParametricMonitor(const ParametricTA &automaton) : automaton(automaton) {
     absTime = 0;
@@ -73,7 +73,7 @@ public:
     while (!currentConfigurations.empty()) {
       nextConfigurations.clear();
       for (const Configuration &conf: currentConfigurations) {
-        auto transitionIt = std::get<0>(conf)->next.find(unobservableActinoID);
+        auto transitionIt = std::get<0>(conf)->next.find(unobservableActionID);
         if (transitionIt == std::get<0>(conf)->next.end()) {
           continue;
         }
@@ -128,6 +128,8 @@ public:
     for (Configuration conf: configurations) {
       for (std::size_t i = 0; i < automaton.clockVariableSize; i++) {
         //! @todo Currently, the timestamp is mpz (integer). I will make it mpq (quadratic) later.
+        // 時間経過の計算をしているだけっぽい
+        //Parma_Polyhedra_Library::Variable(automaton.parameterSize + i) は i個の clock 変数ぽい
         std::get<1>(conf).affine_image(Parma_Polyhedra_Library::Variable(automaton.parameterSize + i),
                                        Parma_Polyhedra_Library::Variable(automaton.parameterSize + i) *
                                                dwellTime.getDenominator() +
@@ -139,10 +141,13 @@ public:
     std::swap(configurations, nextConfigurations);
 
     // Try unobservable transitions
+    // epsilon 遷移を複数回繰り返すループ, configurations を構築する
+    // next の遷移先がなくなるまで繰り返す?
     while (!currentConfigurations.empty()) {
       nextConfigurations.clear();
       for (const Configuration &conf: currentConfigurations) {
-        auto transitionIt = std::get<0>(conf)->next.find(unobservableActinoID);
+        // この unobservableActionID が epsilon 遷移に対応している
+        auto transitionIt = std::get<0>(conf)->next.find(unobservableActionID);
         if (transitionIt == std::get<0>(conf)->next.end()) {
           continue;
         }
@@ -194,7 +199,7 @@ public:
 
       std::swap(currentConfigurations, nextConfigurations);
     }
-
+    //currentConfigurations, nextConfigurations は以後使わない
     nextConfigurations.clear();
     boost::unordered_map<std::tuple<std::shared_ptr<PTAState>, ParametricTimingValuation, Symbolic::StringValuation>,
                          Parma_Polyhedra_Library::Pointset_Powerset<Symbolic::NumberValuation>>
