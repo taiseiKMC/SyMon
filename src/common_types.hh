@@ -102,6 +102,12 @@ template <typename Update> struct UpdateTraits {
   static decltype(std::declval<Update>().numberUpdate) &numberUpdate(Update &update) {
     return update.numberUpdate;
   }
+  static decltype(std::declval<Update>().stringUpdate) stringUpdate(const Update &update) {
+    return update.stringUpdate;
+  }
+  static decltype(std::declval<Update>().numberUpdate) numberUpdate(const Update &update) {
+    return update.numberUpdate;
+  }
 };
 
 template <typename, typename = void> struct hasRelease : std::false_type {};
