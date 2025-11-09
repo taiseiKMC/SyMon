@@ -1,6 +1,7 @@
 #define BOOST_GRAPH_USE_SPIRIT_PARSER // for header only
 
 #include "automaton_parser.hh"
+#include "automaton_printer.hh"
 #include "symon_parser.hh"
 
 #include <boost/program_options.hpp>
@@ -84,7 +85,7 @@ int execute(const std::string &timedAutomatonFileName, const std::string &signat
     BoostTAType BoostTA;
     parseBoostTA(taStream, BoostTA);
     convBoostTA(BoostTA, TA); //ParametricTA かどうかで関数が分岐する. TA を参照渡ししている(初期化？)
-
+    
     // read signature file
     std::fstream signatureStream(signatureFileName);
     if (signatureStream.fail()) {
@@ -93,6 +94,7 @@ int execute(const std::string &timedAutomatonFileName, const std::string &signat
     }
     signature = Signature(signatureStream);
   }
+  std::cout << "Loaded automaton:\n" << TA << std::endl;
 
   // construct BooleanPrinter
   const auto printer = std::make_shared<Printer>();
