@@ -1,0 +1,12 @@
+var {
+    num: number;
+    str: string
+}
+
+signature data {
+    n: number;
+}
+
+data(n)*;
+data( n | true | num := n + 10 );
+data( n | num > n )
