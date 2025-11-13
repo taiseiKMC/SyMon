@@ -1,0 +1,13 @@
+data 0 0
+data 10 1
+data 20 2
+data 30 3
+data 40 4
+data 50 5
+data 60 6
+data 71 7
+data 80 8
+data 90 9
+data 100 10
+data 111 11
+data 120 12

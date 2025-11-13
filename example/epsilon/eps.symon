@@ -1,0 +1,23 @@
+var {
+    value: string;
+}
+
+signature event {
+    id: string;
+}
+
+(event(id))*;
+event( id | id == "a");
+within (> 1) {
+    within (< 2) {
+        unobservable(| value == "z")
+    }
+};
+within (> 1) {
+    within (< 2) {
+        unobservable(| value == "z")
+    }
+};
+within (> 4) {
+    event( id | id == "b")
+}
