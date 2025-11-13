@@ -18,14 +18,6 @@ static inline char to_string(const bool b) {
   return b ? '1' : '0';
 }
 
-static inline std::string stringUpdate_to_string(const std::vector<std::pair<VariableID, VariableID>> &stringUpdate) {
-  std::string ret = "{";
-  for(const auto& [var, value] : stringUpdate) {
-    ret += "x" + std::to_string(var) + ":= x" + std::to_string(value) + ", ";
-  }
-  ret += "}";
-  return ret;
-}
 
 template <typename StringConstraint, typename NumberConstraint, typename TimingConstraint, typename Update>
 static inline std::ostream &
@@ -99,7 +91,7 @@ static inline std::ostream &operator<<(
            << "\"][reset=\"" << transition.resetVars
            << "\"][s_update=\"" << UpdateTraits<Update>::stringUpdate(transition.update)
            //TODO
-           //<< "\"][n_update=\"" << to_string(UpdateTraits<Update>::numberUpdate(transition.update))
+           << "\"][n_update=\"" << UpdateTraits<Update>::numberUpdate(transition.update)
            << "\"]" << std::endl;
       }
     }
