@@ -40,7 +40,7 @@ struct CopyFixture {
         {
             std::vector<NonSymbolic::StringConstraint> stringConstraints;
             std::vector<NonSymbolic::NumberConstraint<int> > numConstraints;
-            NonSymbolic::Update update;
+            NonSymbolic::Update<int> update;
             std::vector<VariableID> resetVars;
 
             automaton.states[0]->next[0][0] = {
@@ -60,7 +60,7 @@ struct CopyFixture {
 
             std::vector<NonSymbolic::NumberConstraint<int> > numConstraints;
 
-            NonSymbolic::Update update;
+            NonSymbolic::Update<int> update;
             update.numberUpdate.emplace_back(VariableID{0}, VariableID{1});
 
             std::vector<VariableID> resetVars = {VariableID{0}};
@@ -86,7 +86,7 @@ struct CopyFixture {
             std::vector<NonSymbolic::NumberConstraint<int> > numConstraints;
             numConstraints.push_back(NonSymbolic::NCMakerVar<int>(0) != NonSymbolic::NCMakerVar<int>(1));
 
-            NonSymbolic::Update update;
+            NonSymbolic::Update<int> update;
             std::vector<VariableID> resetVars;
 
             std::vector<TimingConstraint> guard;
@@ -108,7 +108,7 @@ struct CopyFixture {
             stringConstraints.push_back(NonSymbolic::SCMaker(0) != "x");
 
             std::vector<NonSymbolic::NumberConstraint<int> > numConstraints;
-            NonSymbolic::Update update;
+            NonSymbolic::Update<int> update;
             std::vector<VariableID> resetVars;
 
             std::vector<TimingConstraint> guard;
@@ -132,7 +132,7 @@ struct CopyFixture {
             std::vector<NonSymbolic::NumberConstraint<int> > numConstraints;
             numConstraints.push_back(NonSymbolic::NCMakerVar<int>(0) == NonSymbolic::NCMakerVar<int>(1));
 
-            NonSymbolic::Update update;
+            NonSymbolic::Update<int> update;
             std::vector<VariableID> resetVars;
 
             std::vector<TimingConstraint> guard;
@@ -159,7 +159,7 @@ struct CopyFixture {
             std::vector<NonSymbolic::NumberConstraint<int> > numConstraints;
             numConstraints.push_back(NonSymbolic::NCMakerVar<int>(0) == NonSymbolic::NCMakerVar<int>(1));
 
-            NonSymbolic::Update update;
+            NonSymbolic::Update<int> update;
             std::vector<VariableID> resetVars;
 
             std::vector<TimingConstraint> guard;
@@ -181,7 +181,7 @@ struct CopyFixture {
             stringConstraints.push_back(NonSymbolic::SCMaker(0) != "x");
 
             std::vector<NonSymbolic::NumberConstraint<int> > numConstraints;
-            NonSymbolic::Update update;
+            NonSymbolic::Update<int> update;
             std::vector<VariableID> resetVars;
 
             std::vector<TimingConstraint> guard;
@@ -205,7 +205,7 @@ struct CopyFixture {
             std::vector<NonSymbolic::NumberConstraint<int> > numConstraints;
             numConstraints.push_back(NonSymbolic::NCMakerVar<int>(0) != NonSymbolic::NCMakerVar<int>(1));
 
-            NonSymbolic::Update update;
+            NonSymbolic::Update<int> update;
             std::vector<VariableID> resetVars;
 
             std::vector<TimingConstraint> guard;
@@ -225,7 +225,7 @@ struct CopyFixture {
         {
             std::vector<NonSymbolic::StringConstraint> stringConstraints;
             std::vector<NonSymbolic::NumberConstraint<int> > numConstraints;
-            NonSymbolic::Update update;
+            NonSymbolic::Update<int> update;
             std::vector<VariableID> resetVars;
 
             std::vector<TimingConstraint> guard;
