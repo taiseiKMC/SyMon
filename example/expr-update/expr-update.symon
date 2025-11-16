@@ -9,4 +9,4 @@ signature data {
 
 data(n)*;
 data( n | true | num := n + 10 );
-data( n | num > n )
+data( n | num > 10 )
