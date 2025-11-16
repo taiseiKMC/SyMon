@@ -81,26 +81,27 @@ namespace NonSymbolic {
   enum class NumberComparatorKind { GT, GE, EQ, NE, LE, LT };
   template <typename Number> struct NumberConstraint {
     NumberComparatorKind kind;
-    std::array<NumberExpression<Number>, 2> children;
+    NumberExpression<Number> left;
+    NumberExpression<Number> right;
 
     bool eval(const NumberValuation<Number> &env) const {
-      std::array<std::optional<Number>, 2> evaluated;
-      for (int i = 0; i < 2; i++) {
-        children[i].eval(env, evaluated[i]);
-      }
+      std::optional<Number> leftResult;
+      left.eval(env, leftResult);
+      std::optional<Number> rightResult;
+      right.eval(env, rightResult);
       switch (kind) {
         case NumberComparatorKind::GT:
-          return *evaluated[0] > *evaluated[1];
+          return *leftResult > rightResult;
         case NumberComparatorKind::GE:
-          return *evaluated[0] >= *evaluated[1];
+          return *leftResult >= rightResult;
         case NumberComparatorKind::EQ:
-          return *evaluated[0] == *evaluated[1];
+          return *leftResult == rightResult;
         case NumberComparatorKind::NE:
-          return *evaluated[0] != *evaluated[1];
+          return *leftResult != rightResult;
         case NumberComparatorKind::LE:
-          return *evaluated[0] <= *evaluated[1];
+          return *leftResult <= rightResult;
         case NumberComparatorKind::LT:
-          return *evaluated[0] < *evaluated[1];
+          return *leftResult < rightResult;
       }
       return false;
     }
