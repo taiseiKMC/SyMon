@@ -106,6 +106,7 @@ namespace NonSymbolic {
     }
   };
 
+  // テストで NumberConstraint を簡単に作るためのヘルパークラスっぽい？
   //! @todo Write other operators e.g.,
   template <typename Number> class NCMakerVar {
   public:
