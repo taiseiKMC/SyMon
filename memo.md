@@ -4,8 +4,11 @@
     * ubuntu20.04 の普通の apt で取れるバージョンは 3.16 で古く cmake 不可
     * apt-add-repository でアップグレードして解決
     ```
-    % echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ focal main' | sudo tee /etc/apt/sources.list.d/kitware.list >/dev/null
-    % wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | sudo tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null
+    % echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ focal main' 
+      | sudo tee /etc/apt/sources.list.d/kitware.list >/dev/null
+    % wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null
+      | gpg --dearmor -
+      | sudo tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null
     ```
   * boost が要る(書いてる)
   * PPL が要る
@@ -13,6 +16,7 @@
     * `apt install libppl-dev`
   * tree-sitter が要る
     * github から clone, release-0.26 へ checkout, make, make install を実行
+    * cargo install tree-sitter-cli をしないと tree-sitter-symon の install でコケるかも
   * tree-sitter-symon が要る
     * grammar を定義
     * https://github.com/MasWag/tree-sitter-symon
@@ -40,6 +44,7 @@
 * モードがある (FULL PARAMETRIC になるにつれ重くなる)
   * non-parametric and Boolean mode (default)
     * 数値や文字列が扱えない, カウンターのみ
+    * 定数扱えない？？
   * data-parametric mode.
     * 時間制約に対するパラメーターが扱えない
   * fully parametric mode.
@@ -68,6 +73,10 @@ https://github.com/MasWag/SyMon/issues/
 * #7 : Support unobservable transitions in BooleanMonitor
 * #8 :Support updates by expressions in BooleanMonitor
   * 今、変数の update に変数を使わないといけず、定数を与えられない. これを更新する
+  * parametricmonitor 含め `data( n | | str := "foo" )` みたいな string の定数による update が symon 記法でかけない
+    * そもそも
+      * tree-sitter-symon の grammer で定義されてない
+      * string の Update で stringExpr を受け取れず, データ構造的に保持できない
 * #9 : Support more general form of numeric guards in BooleanMonitor
   * BooleanMonitor が `<expression> <op> <constant>` の形式しかサポートしていない. `<expression> <op> <expression>` をサポートしたい
 * #10 : Add filter operator
@@ -89,9 +98,13 @@ https://github.com/MasWag/SyMon/issues/
 * cval : clock variable
 * nval : number variables
 
+* reset : ある遷移に乗じて特定の clock 変数を 0 に初期化することな気がする
+
 * ppl_rational.cc
   * 分数, Parma_Polyhedra_Library::Coefficient(多分整数) を使って定義してある
   * 少数をパースしてそう
+* printer.hh
+  * cout と printf が混じってる...
 
 * automaton.hh
   * Automaton : state, initialstate の集合
@@ -112,3 +125,10 @@ https://github.com/MasWag/SyMon/issues/
   * だめなら FalCAuN の Matlab class の実装をして欲しいそう
     * シミュレーションしたい class を用意するのにリードタイムが必要
 * 早めに見切りをつけたい
+
+# QA
+* parameter と variable は違う？
+  * dot ファイルには x0 だったり p0 だったりで記述してあるが... 違いは？
+    * 非決定的な変数は dot では p0 で記述するが、symon 記法だと区別せず variable で書く みたいな感じ？
+
+
