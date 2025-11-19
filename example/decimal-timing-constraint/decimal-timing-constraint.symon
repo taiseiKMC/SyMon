@@ -1,0 +1,7 @@
+signature foo {
+    bar: string;
+}
+
+within (< 2.5) {
+    foo( bar )+
+}
