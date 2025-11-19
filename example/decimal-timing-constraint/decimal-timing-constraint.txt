@@ -1,0 +1,13 @@
+foo a 0
+foo b 1
+foo c 2
+foo d 3
+foo e 4
+foo f 5
+foo g 6
+foo h 7
+foo i 8
+foo j 9
+foo k 10
+foo l 11
+foo m 12

@@ -9,6 +9,7 @@
 #include "io_operators.hh"
 
 #include "parametric_timing_constraint_helper.hh"
+#include "timing_constraint.hh"
 
 namespace boost {
   using ::operator>>;
@@ -51,25 +52,45 @@ namespace boost {
   BOOST_INSTALL_PROPERTY(edge, guard);
 } // namespace boost
 
-static inline std::ostream &operator<<(std::ostream &os, const TimingConstraint::Order &odr) {
+template <typename Time>
+static inline std::ostream &operator<<(std::ostream &os, const typename TimingConstraint<Time>::Order &odr) {
   switch (odr) {
-    case TimingConstraint::Order::lt:
+    case TimingConstraint<Time>::Order::lt:
       os << "<";
       break;
-    case TimingConstraint::Order::le:
+    case TimingConstraint<Time>::Order::le:
       os << "<=";
       break;
-    case TimingConstraint::Order::ge:
+    case TimingConstraint<Time>::Order::ge:
       os << ">=";
       break;
-    case TimingConstraint::Order::gt:
+    case TimingConstraint<Time>::Order::gt:
       os << ">";
       break;
   }
   return os;
 }
 
-static inline std::ostream &operator<<(std::ostream &os, const TimingConstraint &p) {
+static inline std::ostream &operator<<(std::ostream &os, const TimingConstraint<double>::Order &odr) {
+  switch (odr) {
+    case TimingConstraint<double>::Order::lt:
+      os << "<";
+      break;
+    case TimingConstraint<double>::Order::le:
+      os << "<=";
+      break;
+    case TimingConstraint<double>::Order::ge:
+      os << ">=";
+      break;
+    case TimingConstraint<double>::Order::gt:
+      os << ">";
+      break;
+  }
+  return os;
+}
+
+template <typename Time>
+static inline std::ostream &operator<<(std::ostream &os, const TimingConstraint<Time> &p) {
   os << "x" << int(p.x) << " " << p.odr << " " << p.c;
   return os;
 }
@@ -88,7 +109,8 @@ template <class T> static inline std::ostream &operator<<(std::ostream &os, cons
   return os;
 }
 
-static inline std::istream &operator>>(std::istream &is, TimingConstraint &p) {
+template <typename Time>
+static inline std::istream &operator>>(std::istream &is, TimingConstraint<Time> &p) {
   if (is.get() != 'x') {
     is.setstate(std::ios_base::failbit);
     return is;
@@ -112,13 +134,13 @@ static inline std::istream &operator>>(std::istream &is, TimingConstraint &p) {
   switch (odr[0]) {
     case '>':
       if (odr[1] == '=') {
-        p.odr = TimingConstraint::Order::ge;
+        p.odr = TimingConstraint<Time>::Order::ge;
         if (is.get() != ' ') {
           is.setstate(std::ios_base::failbit);
           return is;
         }
       } else if (odr[1] == ' ') {
-        p.odr = TimingConstraint::Order::gt;
+        p.odr = TimingConstraint<Time>::Order::gt;
       } else {
         is.setstate(std::ios_base::failbit);
         return is;
@@ -126,13 +148,13 @@ static inline std::istream &operator>>(std::istream &is, TimingConstraint &p) {
       break;
     case '<':
       if (odr[1] == '=') {
-        p.odr = TimingConstraint::Order::le;
+        p.odr = TimingConstraint<Time>::Order::le;
         if (is.get() != ' ') {
           is.setstate(std::ios_base::failbit);
           return is;
         }
       } else if (odr[1] == ' ') {
-        p.odr = TimingConstraint::Order::lt;
+        p.odr = TimingConstraint<Time>::Order::lt;
       } else {
         is.setstate(std::ios_base::failbit);
         return is;
@@ -282,11 +304,13 @@ using BoostTimedAutomaton = boost::adjacency_list<
                     boost::property<boost::graph_string_variable_size_t, std::size_t,
                                     boost::property<boost::graph_number_variable_size_t, std::size_t>>>>;
 
-template <typename Number>
+template <typename Number, typename Timestamp>
 using NonParametricBoostTA = BoostTimedAutomaton<NonSymbolic::StringConstraint, NonSymbolic::NumberConstraint<Number>,
-                                                 TimingConstraint, NonSymbolic::Update<Number>>;
+                                                 TimingConstraint<Timestamp>, NonSymbolic::Update<Number>>;
+
+template <typename Time>
 using DataParametricBoostTA =
-    BoostTimedAutomaton<Symbolic::StringConstraint, Symbolic::NumberConstraint, TimingConstraint, Symbolic::Update>;
+    BoostTimedAutomaton<Symbolic::StringConstraint, Symbolic::NumberConstraint, TimingConstraint<Time>, Symbolic::Update>;
 using BoostPTA = boost::adjacency_list<
     boost::listS, boost::vecS, boost::directedS, BoostTAState,
     BoostTATransition<Symbolic::StringConstraint, Symbolic::NumberConstraint, ParametricTimingConstraintHelper,

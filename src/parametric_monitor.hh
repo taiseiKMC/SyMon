@@ -151,13 +151,15 @@ public:
         if (transitionIt == std::get<0>(conf)->next.end()) {
           continue;
         }
+        int _srcIdx = std::find(automaton.states.begin(), automaton.states.end(), std::get<0>(conf))
+                    - automaton.states.begin();
         // make the current env
         auto clockValuation = std::get<1>(conf);
         clockValuation.time_elapse_assign(elapsePolyhedron);
-        clockValuation.add_constraint(
+        clockValuation.add_constraint(//parameterSize + clockVariableSize は何？
             Parma_Polyhedra_Library::Variable(automaton.parameterSize + automaton.clockVariableSize) *
                 dwellTime.getDenominator() <=
-            dwellTime.getNumerator());
+            dwellTime.getNumerator());//dwellTime 経つまでの間に時間の制約を満たす遷移をする ための制約と変数を追加？
         const auto stringEnv = std::get<2>(conf);
         const auto numberEnv = std::get<3>(conf);
         for (const auto &transition: transitionIt->second) {
@@ -167,13 +169,16 @@ public:
           auto nextNEnv = numberEnv;
           auto extendedGuard = transition.guard;
           extendedGuard.add_space_dimensions_and_embed(1);
-          if (eval(nextCVal, extendedGuard) &&
+          if (eval(nextCVal, extendedGuard) && //多分 guard の制約をここで nextCVal に追加している
               eval(transition.stringConstraints, nextSEnv, transition.numConstraints, nextNEnv)) {
             for (const VariableID resetVar: transition.resetVars) {
               nextCVal.affine_image(Parma_Polyhedra_Library::Variable(automaton.parameterSize + resetVar),
                                     Parma_Polyhedra_Library::Linear_Expression(0));
             }
             transition.update.execute(nextSEnv, nextNEnv);
+            int _dstIdx = std::find(automaton.states.begin(), automaton.states.end(), transition.target.lock())
+                    - automaton.states.begin();
+            //std::cout << _srcIdx << "->" << _dstIdx << std::endl;
             nextConfigurations.insert({transition.target.lock(), nextCVal, nextSEnv, nextNEnv});
             if (transition.target.lock()->isMatch) {
               auto tmpNCV = nextCVal;
@@ -181,6 +186,7 @@ public:
               notifyObservers({index, absTime, nextNEnv, nextSEnv, tmpNCV});
             }
             // time elapse
+            // clock はここで dwellTime 以下だけ進める. 進める時間のレンジはPPLライブラリの内部の制約によって管理されている
             for (std::size_t i = 0; i < automaton.clockVariableSize; i++) {
               //! @todo Currently, the timestamp is mpz (integer). I will make it mpq (quadratic) later.
               nextCVal.affine_image(
@@ -189,6 +195,7 @@ public:
                       dwellTime.getNumerator() -
                       Parma_Polyhedra_Library::Variable(automaton.parameterSize + automaton.clockVariableSize) *
                           dwellTime.getDenominator(),
+                  // var(par+i) + dwellTime - var(par+clock)
                   dwellTime.getDenominator());
             }
             nextCVal.remove_higher_space_dimensions(automaton.parameterSize + automaton.clockVariableSize);

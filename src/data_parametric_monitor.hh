@@ -27,6 +27,7 @@ struct DataParametricMonitorResult {
 class DataParametricMonitor : public SingleSubject<DataParametricMonitorResult>,
                               public Observer<TimedWordEvent<PPLRational>> {
 public:
+  static const constexpr std::size_t unobservableActionID = 127;
   explicit DataParametricMonitor(const DataParametricTA &automaton) : automaton(automaton) {
     absTime = 0;
     configurations.clear();
@@ -49,6 +50,69 @@ public:
     const std::vector<PPLRational> &numbers = event.numbers;
     const double timestamp = event.timestamp;
     boost::unordered_set<Configuration> nextConfigurations;
+    /*
+    boost::unordered_set<Configuration> currentConfigurations;
+    boost::unordered_set<Configuration> nextConfigurations;
+
+    while (!currentConfigurations.empty()) {
+      nextConfigurations.clear();
+      for (const Configuration &conf: currentConfigurations) {
+        // この unobservableActionID が epsilon 遷移に対応している
+        auto transitionIt = std::get<0>(conf)->next.find(unobservableActionID);
+        if (transitionIt == std::get<0>(conf)->next.end()) {
+          continue;
+        }
+        // make the current env
+        auto clockValuation = std::get<1>(conf);
+        //clockValuation.time_elapse_assign(elapsePolyhedron);
+        //clockValuation.add_constraint(
+        //    Parma_Polyhedra_Library::Variable(automaton.parameterSize + automaton.clockVariableSize) *
+        //        dwellTime.getDenominator() <=
+        //    dwellTime.getNumerator());
+        const auto stringEnv = std::get<2>(conf);
+        const auto numberEnv = std::get<3>(conf);
+        for (const auto &transition: transitionIt->second) {
+          // evaluate the guards
+          auto nextCVal = clockValuation;
+          auto nextSEnv = stringEnv;
+          auto nextNEnv = numberEnv;
+          auto extendedGuard = transition.guard;
+          extendedGuard.add_space_dimensions_and_embed(1);
+          if (eval(nextCVal, extendedGuard) &&
+              eval(transition.stringConstraints, nextSEnv, transition.numConstraints, nextNEnv)) {
+            for (const VariableID resetVar: transition.resetVars) {
+              //nextCVal.affine_image(Parma_Polyhedra_Library::Variable(automaton.parameterSize + resetVar),
+              //                      Parma_Polyhedra_Library::Linear_Expression(0));
+              nextCVal[resetVar] = 0;
+            }
+            transition.update.execute(nextSEnv, nextNEnv);
+            nextConfigurations.insert({transition.target.lock(), nextCVal, nextSEnv, nextNEnv});
+            if (transition.target.lock()->isMatch) {
+              auto tmpNCV = nextCVal;
+              tmpNCV.remove_higher_space_dimensions(automaton.parameterSize + automaton.clockVariableSize);
+              notifyObservers({index, absTime, nextNEnv, nextSEnv, tmpNCV});
+            }
+            // time elapse
+            for (std::size_t i = 0; i < automaton.clockVariableSize; i++) {
+              //! @todo Currently, the timestamp is mpz (integer). I will make it mpq (quadratic) later.
+              nextCVal.affine_image(
+                  Parma_Polyhedra_Library::Variable(automaton.parameterSize + i),
+                  Parma_Polyhedra_Library::Variable(automaton.parameterSize + i) * dwellTime.getDenominator() +
+                      dwellTime.getNumerator() -
+                      Parma_Polyhedra_Library::Variable(automaton.parameterSize + automaton.clockVariableSize) *
+                          dwellTime.getDenominator(),
+                  dwellTime.getDenominator());
+            }
+            //nextCVal.remove_higher_space_dimensions(automaton.parameterSize + automaton.clockVariableSize);
+            configurations.insert({transition.target.lock(), nextCVal, nextSEnv, nextNEnv});
+          }
+        }
+      }
+
+      std::swap(currentConfigurations, nextConfigurations);
+    }
+
+    */
 
     for (const Configuration &conf: configurations) {
       // make the current env
@@ -63,7 +127,9 @@ public:
       assert(numberEnv.space_dimension() == automaton.numberVariableSize);
       numberEnv.add_space_dimensions_and_embed(numbers.size());
       for (std::size_t i = 0; i < numbers.size(); i++) {
-        numberEnv.add_constraint(Parma_Polyhedra_Library::Variable(automaton.numberVariableSize + i) * numbers[i].getDenominator() == numbers[i].getNumerator());
+        numberEnv.add_constraint(Parma_Polyhedra_Library::Variable(automaton.numberVariableSize + i) *
+                                  numbers[i].getDenominator() ==
+                                 numbers[i].getNumerator());
       }
 
       auto transitionIt = std::get<0>(conf)->next.find(actionId);
