@@ -3,8 +3,8 @@
 #include "../src/boolean_monitor.hh"
 #include "../test/fixture/copy_automaton_fixture.hh"
 
-struct DummyTimedWordSubject : public SingleSubject<TimedWordEvent<int>> {
-  DummyTimedWordSubject(std::vector<TimedWordEvent<int>> &&vec) :vec(std::move(vec)) {}
+struct DummyTimedWordSubject : public SingleSubject<TimedWordEvent<int, double>> {
+  DummyTimedWordSubject(std::vector<TimedWordEvent<int, double>> &&vec) :vec(std::move(vec)) {}
   virtual ~DummyTimedWordSubject(){}
   void notifyAll() {
     for (const auto &event: vec) {
@@ -12,21 +12,21 @@ struct DummyTimedWordSubject : public SingleSubject<TimedWordEvent<int>> {
     }
     vec.clear();
   }
-  std::vector<TimedWordEvent<int>> vec;
+  std::vector<TimedWordEvent<int, double>> vec;
 };
 
-struct DummyBooleanMonitorObserver : public Observer<BooleanMonitorResult<int>> {
+struct DummyBooleanMonitorObserver : public Observer<BooleanMonitorResult<int, double>> {
   DummyBooleanMonitorObserver() {}
   virtual ~DummyBooleanMonitorObserver() {}
-  void notify(const BooleanMonitorResult<int>& result) {
+  void notify(const BooleanMonitorResult<int, double>& result) {
     resultVec.push_back(result);
   }
-  std::vector<BooleanMonitorResult<int>> resultVec;
+  std::vector<BooleanMonitorResult<int, double>> resultVec;
 };
 
 struct CopyBooleanMonitorFixture : public CopyFixture {
-  void feed(std::vector<TimedWordEvent<int>> &&vec) {
-    auto monitor = std::make_shared<NonSymbolic::BooleanMonitor<int>>(automaton);
+  void feed(std::vector<TimedWordEvent<int, double>> &&vec) {
+    auto monitor = std::make_shared<NonSymbolic::BooleanMonitor<int, double>>(automaton);
     std::shared_ptr<DummyBooleanMonitorObserver> observer = std::make_shared<DummyBooleanMonitorObserver>();
     monitor->addObserver(observer);
     DummyTimedWordSubject subject{std::move(vec)};
@@ -34,14 +34,14 @@ struct CopyBooleanMonitorFixture : public CopyFixture {
     subject.notifyAll();
     resultVec = std::move(observer->resultVec);
   }
-  std::vector<BooleanMonitorResult<int>> resultVec;
+  std::vector<BooleanMonitorResult<int, double>> resultVec;
 };
 
 BOOST_AUTO_TEST_SUITE(BooleanMonitorTest)
 
 BOOST_FIXTURE_TEST_CASE(test1, CopyBooleanMonitorFixture)
 {
-  std::vector<TimedWordEvent<int>> dummyTimedWord(3);
+  std::vector<TimedWordEvent<int, double>> dummyTimedWord(3);
   dummyTimedWord[0] = {0, {"x"}, {100}, 0.1};
   dummyTimedWord[1] = {0, {"y"}, {200}, 10};
   dummyTimedWord[2] = {0, {"x"}, {200}, 15};
