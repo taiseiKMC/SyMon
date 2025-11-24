@@ -10,21 +10,21 @@
 #include <boost/unordered_set.hpp>
 
 //BooleanMonitor の Printer のベース, notifyObserver で渡す型
-template <class Number> struct BooleanMonitorResult {
+template <class Number, typename Timestamp> struct BooleanMonitorResult {
   std::size_t index; // イベントの通し番号
-  double timestamp;
+  Timestamp timestamp;
   NonSymbolic::NumberValuation<Number> numberValuation;
   NonSymbolic::StringValuation stringValuation;
 };
 
 namespace NonSymbolic {
   template <typename Number, typename Timestamp>
-  class BooleanMonitor : public SingleSubject<BooleanMonitorResult<Number>>, public Observer<TimedWordEvent<Number>> {
+  class BooleanMonitor : public SingleSubject<BooleanMonitorResult<Number, Timestamp>>, public Observer<TimedWordEvent<Number, Timestamp>> {
   public:
     BooleanMonitor(const NonParametricTA<Number, Timestamp> &automaton) : automaton(automaton) {
       configurations.clear();
       // configurations.reserve(automaton.initialStates.size());
-      std::vector<double> initCVal(automaton.clockVariableSize);
+      std::vector<Timestamp> initCVal(automaton.clockVariableSize);
       std::cout<<"clockVariableSize: "<<automaton.clockVariableSize<<std::endl;
       // by default, initSEnv is no violating set (variant)
       StringValuation initSEnv(automaton.stringVariableSize);
@@ -35,17 +35,17 @@ namespace NonSymbolic {
       }
     }
     virtual ~BooleanMonitor() = default;
-    void notify(const TimedWordEvent<Number> &event) {
+    void notify(const TimedWordEvent<Number, Timestamp> &event) {
       const Action actionId = event.actionId;
       const std::vector<std::string> &strings = event.strings;
       const std::vector<Number> &numbers = event.numbers;
-      const double timestamp = event.timestamp;
+      const Timestamp timestamp = event.timestamp;
       boost::unordered_set<Configuration> nextConfigurations;
       for (const Configuration &conf: configurations) {
         // make the current env
         // TimingValuation 型
         auto clockValuation = std::get<1>(conf); // conf.clockValuation;
-        for (double &d: clockValuation) {
+        for (Timestamp &d: clockValuation) {
           //前にnotifyが呼ばれたの時間 absTime から経過した時間を clockValuation に足して更新する
           d += timestamp - absTime;
         }
@@ -96,11 +96,11 @@ namespace NonSymbolic {
     const NonParametricTA<Number, Timestamp> automaton;
 
     // (automaton の状態), (clock 変数の値), (出現した string 引数), (出現した number 引数) の tuple
-    using Configuration = std::tuple<std::shared_ptr<NonParametricTAState<Number, Timestamp>>, std::vector<double>,
+    using Configuration = std::tuple<std::shared_ptr<NonParametricTAState<Number, Timestamp>>, std::vector<Timestamp>,
                                      StringValuation, NumberValuation<Number>>;
     // struct Configuration {
     //   std::shared_ptr<AutomatonState<Number>> state;
-    //   std::vector<double> clockValuation;
+    //   std::vector<Timestamp> clockValuation;
     //   StringValuation stringEnv;
     //   NumberValuation<Number> numberEnv;
     //   bool operator==(const Configuration x) const {
@@ -109,7 +109,7 @@ namespace NonSymbolic {
     //   }
     // };
     boost::unordered_set<Configuration> configurations;
-    double absTime;
+    Timestamp absTime;
     std::size_t index = 0;
   };
 } // namespace NonSymbolic

@@ -190,13 +190,13 @@ int main(int argc, char *argv[]) {
     } else if (vm.count("dataparametric")) {
       // data parametric with new syntax
       return execute<DataParametricTA<Timestamp>, DataParametricBoostTA<Number>, PPLRational, Timestamp, DataParametricMonitor<Timestamp>,
-                     DataParametricPrinter, Symbolic::StringConstraint, Symbolic::NumberConstraint,
+                     DataParametricPrinter<Timestamp>, Symbolic::StringConstraint, Symbolic::NumberConstraint,
                      std::vector<TimingConstraint<Timestamp>>, Symbolic::Update>(timedAutomatonFileName, signatureFileName,
                                                                       timedWordFileName, true);
     } else {
       // boolean with new syntax
       return execute<NonParametricTA<Number, Timestamp>, NonParametricBoostTA<Number>, Number, Timestamp, BooleanMonitor<Number, Timestamp>,
-                     BooleanPrinter<Number>, NonSymbolic::StringConstraint, NonSymbolic::NumberConstraint<Number>,
+                     BooleanPrinter<Number, Timestamp>, NonSymbolic::StringConstraint, NonSymbolic::NumberConstraint<Number>,
                      std::vector<TimingConstraint<Timestamp>>, NonSymbolic::Update<Number>>(timedAutomatonFileName, signatureFileName,
                                                                          timedWordFileName, true);
     }
@@ -208,13 +208,13 @@ int main(int argc, char *argv[]) {
   } else if (vm.count("dataparametric")) {
     // data parametric
     return execute<DataParametricTA<Timestamp>, DataParametricBoostTA<Number>, PPLRational, Timestamp, DataParametricMonitor<Timestamp>,
-                   DataParametricPrinter, Symbolic::StringConstraint, Symbolic::NumberConstraint,
+                   DataParametricPrinter<Timestamp>, Symbolic::StringConstraint, Symbolic::NumberConstraint,
                    std::vector<TimingConstraint<Timestamp>>, Symbolic::Update>(timedAutomatonFileName, signatureFileName,
                                                                     timedWordFileName, false);
   } else {
     // boolean
-    return execute<NonParametricTA<Number, Timestamp>, NonParametricBoostTA<Number>, Number, double, BooleanMonitor<Number, Timestamp>,
-                   BooleanPrinter<Number>, NonSymbolic::StringConstraint, NonSymbolic::NumberConstraint<Number>,
+    return execute<NonParametricTA<Number, Timestamp>, NonParametricBoostTA<Number>, Number, Timestamp, BooleanMonitor<Number, Timestamp>,
+                   BooleanPrinter<Number, Timestamp>, NonSymbolic::StringConstraint, NonSymbolic::NumberConstraint<Number>,
                    std::vector<TimingConstraint<Timestamp>>, NonSymbolic::Update<Number>>(timedAutomatonFileName, signatureFileName,
                                                                        timedWordFileName, false);
   }
