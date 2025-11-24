@@ -53,36 +53,36 @@ namespace boost {
 } // namespace boost
 
 template <typename Timestamp>
-static inline std::ostream &operator<<(std::ostream &os, const typename TimingConstraint<Timestamp>::Order &odr) {
+static inline std::ostream &operator<<(std::ostream &os, const TimingConstraintOrder &odr) {
   switch (odr) {
-    case TimingConstraint<Timestamp>::Order::lt:
+    case TimingConstraintOrder::lt:
       os << "<";
       break;
-    case TimingConstraint<Timestamp>::Order::le:
+    case TimingConstraintOrder::le:
       os << "<=";
       break;
-    case TimingConstraint<Timestamp>::Order::ge:
+    case TimingConstraintOrder::ge:
       os << ">=";
       break;
-    case TimingConstraint<Timestamp>::Order::gt:
+    case TimingConstraintOrder::gt:
       os << ">";
       break;
   }
   return os;
 }
 
-static inline std::ostream &operator<<(std::ostream &os, const TimingConstraint<double>::Order &odr) {
+static inline std::ostream &operator<<(std::ostream &os, const TimingConstraintOrder &odr) {
   switch (odr) {
-    case TimingConstraint<double>::Order::lt:
+    case TimingConstraintOrder::lt:
       os << "<";
       break;
-    case TimingConstraint<double>::Order::le:
+    case TimingConstraintOrder::le:
       os << "<=";
       break;
-    case TimingConstraint<double>::Order::ge:
+    case TimingConstraintOrder::ge:
       os << ">=";
       break;
-    case TimingConstraint<double>::Order::gt:
+    case TimingConstraintOrder::gt:
       os << ">";
       break;
   }
@@ -134,13 +134,13 @@ static inline std::istream &operator>>(std::istream &is, TimingConstraint<Timest
   switch (odr[0]) {
     case '>':
       if (odr[1] == '=') {
-        p.odr = TimingConstraint<Timestamp>::Order::ge;
+        p.odr = TimingConstraintOrder::ge;
         if (is.get() != ' ') {
           is.setstate(std::ios_base::failbit);
           return is;
         }
       } else if (odr[1] == ' ') {
-        p.odr = TimingConstraint<Timestamp>::Order::gt;
+        p.odr = TimingConstraintOrder::gt;
       } else {
         is.setstate(std::ios_base::failbit);
         return is;
@@ -148,13 +148,13 @@ static inline std::istream &operator>>(std::istream &is, TimingConstraint<Timest
       break;
     case '<':
       if (odr[1] == '=') {
-        p.odr = TimingConstraint<Timestamp>::Order::le;
+        p.odr = TimingConstraintOrder::le;
         if (is.get() != ' ') {
           is.setstate(std::ios_base::failbit);
           return is;
         }
       } else if (odr[1] == ' ') {
-        p.odr = TimingConstraint<Timestamp>::Order::lt;
+        p.odr = TimingConstraintOrder::lt;
       } else {
         is.setstate(std::ios_base::failbit);
         return is;
