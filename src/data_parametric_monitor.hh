@@ -24,10 +24,11 @@ struct DataParametricMonitorResult {
   Symbolic::StringValuation stringValuation;
 };
 
+template<typename Time>
 class DataParametricMonitor : public SingleSubject<DataParametricMonitorResult>,
                               public Observer<TimedWordEvent<PPLRational>> {
 public:
-  explicit DataParametricMonitor(const DataParametricTA &automaton) : automaton(automaton) {
+  explicit DataParametricMonitor(const DataParametricTA<Time> &automaton) : automaton(automaton) {
     absTime = 0;
     configurations.clear();
     // configurations.reserve(automaton.initialStates.size());
@@ -96,8 +97,8 @@ public:
   }
 
 private:
-  const DataParametricTA automaton;
-  using Configuration = std::tuple<std::shared_ptr<DataParametricTAState>, std::vector<double>,
+  const DataParametricTA<Time> automaton;
+  using Configuration = std::tuple<std::shared_ptr<DataParametricTAState<Time>>, std::vector<double>,
                                    Symbolic::StringValuation, Symbolic::NumberValuation>;
   // Symbolic::NumberValuation>;
   /*  struct Configuration {
