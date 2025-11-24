@@ -7,6 +7,7 @@
 #include "symbolic_number_constraint.hh"
 #include "symbolic_string_constraint.hh"
 #include "symbolic_update.hh"
+#include "timed_word_parser.hh"
 #include "timed_word_subject.hh"
 
 namespace Parma_Polyhedra_Library {
@@ -17,22 +18,23 @@ namespace Parma_Polyhedra_Library {
 
 #include <boost/unordered_set.hpp>
 
+template <typename Timestamp>
 struct DataParametricMonitorResult {
   std::size_t index;
-  double timestamp;
+  Timestamp timestamp;
   Symbolic::NumberValuation numberValuation;
   Symbolic::StringValuation stringValuation;
 };
 
 template<typename Timestamp>
-class DataParametricMonitor : public SingleSubject<DataParametricMonitorResult>,
-                              public Observer<TimedWordEvent<PPLRational>> {
+class DataParametricMonitor : public SingleSubject<DataParametricMonitorResult<Timestamp>>,
+                              public Observer<TimedWordEvent<PPLRational, Timestamp>> {
 public:
   explicit DataParametricMonitor(const DataParametricTA<Timestamp> &automaton) : automaton(automaton) {
     absTime = 0;
     configurations.clear();
     // configurations.reserve(automaton.initialStates.size());
-    std::vector<double> initCVal(automaton.clockVariableSize);
+    std::vector<Timestamp> initCVal(automaton.clockVariableSize);
     // by default, initSEnv is no violating set (variant)
     Symbolic::StringValuation initSEnv(automaton.stringVariableSize);
     // by default, initNEnv is the universe of dimension automaton.numberVariableSize
@@ -44,17 +46,17 @@ public:
 
   virtual ~DataParametricMonitor() = default;
 
-  void notify(const TimedWordEvent<PPLRational> &event) override {
+  void notify(const TimedWordEvent<PPLRational, Timestamp> &event) override {
     const Action actionId = event.actionId;
     const std::vector<std::string> &strings = event.strings;
     const std::vector<PPLRational> &numbers = event.numbers;
-    const double timestamp = event.timestamp;
+    const Timestamp timestamp = event.timestamp;
     boost::unordered_set<Configuration> nextConfigurations;
 
     for (const Configuration &conf: configurations) {
       // make the current env
       auto clockValuation = std::get<1>(conf); //.clockValuation;
-      for (double &d: clockValuation) {
+      for (Timestamp &d: clockValuation) {
         d += timestamp - absTime;
       }
       auto stringEnv = std::get<2>(conf); //.stringEnv;
@@ -86,7 +88,7 @@ public:
           nextNEnv.remove_higher_space_dimensions(automaton.numberVariableSize);
           nextConfigurations.insert({transition.target.lock(), std::move(nextCVal), nextSEnv, nextNEnv});
           if (transition.target.lock()->isMatch) {
-            notifyObservers({index, timestamp, nextNEnv, nextSEnv});
+            this->notifyObservers({index, timestamp, nextNEnv, nextSEnv});
           }
         }
       }
@@ -98,16 +100,16 @@ public:
 
 private:
   const DataParametricTA<Timestamp> automaton;
-  using Configuration = std::tuple<std::shared_ptr<DataParametricTAState<Timestamp>>, std::vector<double>,
+  using Configuration = std::tuple<std::shared_ptr<DataParametricTAState<Timestamp>>, std::vector<Timestamp>,
                                    Symbolic::StringValuation, Symbolic::NumberValuation>;
   // Symbolic::NumberValuation>;
   /*  struct Configuration {
       std::shared_ptr<DataParametricTAState> state;
-      std::vector<double> clockValuation;
+      std::vector<Timestamp> clockValuation;
       NonSymbolic::StringValuation stringEnv;
       Symbolic::NumberValuation numberEnv;
     };*/
   boost::unordered_set<Configuration> configurations;
-  double absTime;
+  Timestamp absTime;
   std::size_t index = 0;
 };
