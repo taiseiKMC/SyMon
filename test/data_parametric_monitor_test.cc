@@ -20,18 +20,18 @@ struct DummyTimedWordSubject2 : public SingleSubject<TWEvent> {
   std::vector<TWEvent> vec;
 };
 
-struct DummyDataParametricMonitorObserver : public Observer<DataParametricMonitorResult> {
+struct DummyDataParametricMonitorObserver : public Observer<DataParametricMonitorResult<double>> {
   DummyDataParametricMonitorObserver() {}
   virtual ~DummyDataParametricMonitorObserver() {}
-  void notify(const DataParametricMonitorResult& result) {
+  void notify(const DataParametricMonitorResult<double>& result) {
     resultVec.push_back(result);
   }
-  std::vector<DataParametricMonitorResult> resultVec;
+  std::vector<DataParametricMonitorResult<double>> resultVec;
 };
 
 struct CopyDataParametricMonitorFixture : public DataParametricCopy {
   void feed(/*DataParametricTA automaton, */ std::vector<TWEvent> &&vec) {
-    auto monitor = std::make_shared<DataParametricMonitor>(automaton);
+    auto monitor = std::make_shared<DataParametricMonitor<double>>(automaton);
     std::shared_ptr<DummyDataParametricMonitorObserver> observer = std::make_shared<DummyDataParametricMonitorObserver>();
     monitor->addObserver(observer);
     DummyTimedWordSubject2 subject{std::move(vec)};
@@ -39,7 +39,7 @@ struct CopyDataParametricMonitorFixture : public DataParametricCopy {
     subject.notifyAll();
     resultVec = std::move(observer->resultVec);
   }
-  std::vector<DataParametricMonitorResult> resultVec;
+  std::vector<DataParametricMonitorResult<double>> resultVec;
 };
 
 BOOST_AUTO_TEST_SUITE(DataParametricMonitorTest)

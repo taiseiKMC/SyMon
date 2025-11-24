@@ -20,7 +20,7 @@ struct WithdrawFixture {
         // Construct automaton
         automaton.states.resize(3);
         for (auto &state: automaton.states) {
-            state = std::make_shared<NonParametricTAState<int> >(false);
+            state = std::make_shared<NonParametricTAState<int, double> >(false);
         }
         automaton.initialStates = {automaton.states.front()};
         automaton.states[0]->isMatch = false;
@@ -32,11 +32,11 @@ struct WithdrawFixture {
         automaton.numberVariableSize = 1;
 
         // Create timing constraints
-        std::vector<TimingConstraint> lessThanEqual30;
-        lessThanEqual30.push_back(ConstraintMaker(0) <= 30);
+        std::vector<TimingConstraint<double>> lessThanEqual30;
+        lessThanEqual30.push_back(ConstraintMaker(0) <= 30.);
 
-        std::vector<TimingConstraint> greaterThan30;
-        greaterThan30.push_back(ConstraintMaker(0) > 30);
+        std::vector<TimingConstraint<double>> greaterThan30;
+        greaterThan30.push_back(ConstraintMaker(0) > 30.);
 
         // #### FROM STATE 0 ####
         automaton.states[0]->next[0].resize(2);
@@ -144,7 +144,7 @@ struct WithdrawFixture {
         }
     }
 
-    NonParametricTA<int> automaton;
+    NonParametricTA<int, double> automaton;
     std::unique_ptr<Signature> signature;
 };
 
@@ -162,7 +162,7 @@ struct DataParametricWithdrawFixture {
         // Construct automaton
         automaton.states.resize(3);
         for (auto &state: automaton.states) {
-            state = std::make_shared<DataParametricTAState>(false);
+            state = std::make_shared<DataParametricTAState<double>>(false);
         }
         automaton.initialStates = {automaton.states.front()};
         automaton.states[0]->isMatch = false;
@@ -174,11 +174,11 @@ struct DataParametricWithdrawFixture {
         automaton.numberVariableSize = 1;
 
         // Create timing constraints
-        std::vector<TimingConstraint> lessThanEqual30;
-        lessThanEqual30.push_back(ConstraintMaker(0) <= 30);
+        std::vector<TimingConstraint<double>> lessThanEqual30;
+        lessThanEqual30.push_back(ConstraintMaker(0) <= 30.);
 
-        std::vector<TimingConstraint> greaterThan30;
-        greaterThan30.push_back(ConstraintMaker(0) > 30);
+        std::vector<TimingConstraint<double>> greaterThan30;
+        greaterThan30.push_back(ConstraintMaker(0) > 30.);
 
         // #### FROM STATE 0 ####
         automaton.states[0]->next[0].resize(2);
@@ -286,7 +286,7 @@ struct DataParametricWithdrawFixture {
         }
     }
 
-    DataParametricTA automaton;
+    DataParametricTA<double> automaton;
     std::unique_ptr<Signature> signature;
 };
 
