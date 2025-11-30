@@ -49,6 +49,8 @@ include_directories(
 # Config for Main
 add_executable(symon src/main.cc)
 
+target_sources(symon PRIVATE src/io_operators.cc)
+
 target_link_libraries(
   symon
   ${Boost_GRAPH_LIBRARY}
@@ -95,6 +97,8 @@ target_link_libraries(
   ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
   ${TREE_SITTER_LINK_LIBRARIES}
   ${TREE_SITTER_SYMON_LINK_LIBRARIES})
+
+target_sources(unit_test PRIVATE src/io_operators.cc)
 
 add_test(
   NAME unit_test

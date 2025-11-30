@@ -11,6 +11,7 @@
 #include "parametric_monitor.hh"
 #include "ppl_rational.hh"
 #include "printer.hh"
+#include "io_operators.cc"
 
 using namespace boost::program_options;
 using namespace boost;
