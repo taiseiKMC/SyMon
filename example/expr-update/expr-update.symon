@@ -1,6 +1,8 @@
 var {
     num: number;
-    str: string
+    str: string;
+    str2: string;
+    str3: string;
 }
 
 signature data {
@@ -8,5 +10,5 @@ signature data {
 }
 
 data(n)*;
-data( n | true | num := n + 10 );
-data( n | num > 10 )
+data( n | | num := n + 10; str := str2; str2 := str3 );
+data( n | num > n && str != "hoge" )

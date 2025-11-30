@@ -40,6 +40,9 @@
   * one_of {} and {} とあるが、 one_of {} or {} と example にはある
   * メタ変数と式が区別つかんな...
   * メタ変数も色々記述不足感
+  * timing_constraint
+    * [a,b], [a,b), (a,b],(a,b)がある
+    * (comparator, n) がある
 
 * モードがある (FULL PARAMETRIC になるにつれ重くなる)
   * non-parametric and Boolean mode (default)
@@ -114,6 +117,18 @@ https://github.com/MasWag/SyMon/issues/
   * numberConstraint : number の制約
   * guard : 多分 clock に関する制約
 
+* string, "" なのか '' なのかどっち？
+
+* symbolic_number_constraint.hh
+  * 凸包を扱う都合上、!= は扱えない(エラーハンドリングしたほうが良い)
+
+* parametric_timing_constraint_helper.hh
+  * comparator_t には NE がないが、grammer.json には <> が既定されているなぁ
+
+* symon_parser.hh
+  * TimeConstraint の型で処理を分岐する箇所がある
+    * SFINAE とかで内部分岐というよりは外側で分岐した方が良い気がする
+
 # MTG Note
 ## 10/19
 #5-#8 は fully-parametric では実装済み, boolean monitor では扱えない
@@ -132,3 +147,5 @@ https://github.com/MasWag/SyMon/issues/
     * 非決定的な変数は dot では p0 で記述するが、symon 記法だと区別せず variable で書く みたいな感じ？
 
 
+b src/parametric_timing_constraint_helper.hh:134
+r -pnf ../example/decimal-timing-constraint/decimal-timing-constraint.symon < ../example/decimal-timing-constraint/decimal-timing-constraint.txt
