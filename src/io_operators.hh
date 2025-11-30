@@ -596,6 +596,8 @@ static inline std::istream &operator>>(std::istream &is, Symbolic::NumberConstra
     numberConstraint = expr[0] <= expr[1];
   } else if (str == "<") {
     numberConstraint = expr[0] < expr[1];
+  } else if (str == "!=") {
+    throw std::runtime_error("Symbolic::NumberConstraint does not support != operator.");
   } else {
     is.setstate(std::ios_base::failbit);
   }
