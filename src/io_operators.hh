@@ -93,3 +93,5 @@ static inline std::istream &operator>>(std::istream &is, std::vector<T> &resetVa
 static inline std::ostream &operator<<(std::ostream &os, const std::vector<Symbolic::NumberConstraint> &vector);
 static inline std::istream &operator>>(std::istream &is, Symbolic::NumberExpression &numberExpression);
 static inline std::istream &operator>>(std::istream &is, Symbolic::NumberConstraint &numberConstraint);
+
+#include "io_operators.cc"
