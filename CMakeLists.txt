@@ -72,6 +72,7 @@ add_executable(
   test/boolean_monitor_test.cc
   test/automaton_parser_test.cc
   test/symbolic_update_test.cc
+  test/non_symbolic_number_constraint_test.cc
   test/non_symbolic_string_constraint_test.cc
   test/non_symbolic_update_test.cc
   test/symbolic_string_constraint_test.cc
