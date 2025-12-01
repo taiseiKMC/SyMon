@@ -89,6 +89,8 @@ static inline std::ostream &operator<<(std::ostream &os, const std::vector<std::
 
 template <class T>
 static inline std::istream &operator>>(std::istream &is, std::vector<T> &resetVars);
+template <class T>
+static inline std::ostream &operator<<(std::ostream &os, const std::vector<T> &guard);
 
 static inline std::ostream &operator<<(std::ostream &os, const std::vector<Symbolic::NumberConstraint> &vector);
 static inline std::istream &operator>>(std::istream &is, Symbolic::NumberExpression &numberExpression);
