@@ -277,8 +277,31 @@ namespace NonSymbolic {
   }
 
   template <typename Number>
-  static inline std::ostream &print(std::ostream &os,
-                                    const typename NonSymbolic::NumberComparatorKind kind) {
+  static inline std::ostream &print(std::ostream &os, const NonSymbolic::NumberComparatorKind kind) {
+    switch (kind) {
+      case NonSymbolic::NumberComparatorKind::GT:
+        os << " > ";
+        break;
+      case NonSymbolic::NumberComparatorKind::GE:
+        os << " >= ";
+        break;
+      case NonSymbolic::NumberComparatorKind::EQ:
+        os << " == ";
+        break;
+      case NonSymbolic::NumberComparatorKind::NE:
+        os << " != ";
+        break;
+      case NonSymbolic::NumberComparatorKind::LE:
+        os << " <= ";
+        break;
+      case NonSymbolic::NumberComparatorKind::LT:
+        os << " < ";
+        break;
+    }
+    return os;
+  }
+
+  static inline std::ostream &operator<<(std::ostream &os, const NonSymbolic::NumberComparatorKind kind) {
     switch (kind) {
       case NonSymbolic::NumberComparatorKind::GT:
         os << " > ";
@@ -317,8 +340,28 @@ namespace NonSymbolic {
     return os;
   }
 
-  template <typename Number>
   static inline std::istream &scan(std::istream &is, typename NonSymbolic::NumberComparatorKind &kind) {
+    std::string str;
+    is >> str;
+    if (str == ">") {
+      kind = NonSymbolic::NumberComparatorKind::GT;
+    } else if (str == ">=") {
+      kind = NonSymbolic::NumberComparatorKind::GE;
+    } else if (str == "==") {
+      kind = NonSymbolic::NumberComparatorKind::EQ;
+    } else if (str == "!=") {
+      kind = NonSymbolic::NumberComparatorKind::NE;
+    } else if (str == "<=") {
+      kind = NonSymbolic::NumberComparatorKind::LE;
+    } else if (str == "<") {
+      kind = NonSymbolic::NumberComparatorKind::LT;
+    } else {
+      is.setstate(std::ios_base::failbit);
+    }
+    return is;
+  }
+
+  static inline std::istream &operator>>(std::istream &is, NonSymbolic::NumberComparatorKind &kind) {
     std::string str;
     is >> str;
     if (str == ">") {
@@ -347,7 +390,7 @@ namespace NonSymbolic {
       is.unget();
       return is;
     }
-    scan<Number>(is, numberConstraint.kind);
+    scan(is, numberConstraint.kind);
     if (is.get() != ' ') {
       is.setstate(std::ios_base::failbit);
       is.unget();

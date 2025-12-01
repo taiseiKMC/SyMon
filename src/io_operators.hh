@@ -42,8 +42,8 @@ namespace NonSymbolic {
   template <typename Number>
   static inline std::istream &operator>>(std::istream &is, NonSymbolic::NumberExpression<Number> &numberExpression);
 
-  template <typename Number>
-  static inline std::ostream &print(std::ostream &os, const typename NonSymbolic::NumberComparatorKind kind);
+  static inline std::ostream &print(std::ostream &os, const NonSymbolic::NumberComparatorKind kind);
+  static inline std::ostream &operator<<(std::ostream &os, const NonSymbolic::NumberComparatorKind kind);
 
   template <typename Number>
   static inline std::ostream &operator<<(std::ostream &os, const typename NonSymbolic::NumberConstraint<Number>::kind_t kind);
@@ -51,8 +51,8 @@ namespace NonSymbolic {
   template <typename Number>
   static inline std::ostream &operator<<(std::ostream &os, const NonSymbolic::NumberConstraint<Number> &numberConstraint);
 
-  template <typename Number>
   static inline std::istream &scan(std::istream &is, typename NonSymbolic::NumberComparatorKind &kind);
+  static inline std::istream &operator>>(std::istream &is, NonSymbolic::NumberComparatorKind &kind);
 
   template <typename Number>
   static inline std::istream &operator>>(std::istream &is, NonSymbolic::NumberConstraint<Number> &numberConstraint);
