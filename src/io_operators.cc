@@ -232,7 +232,7 @@ namespace NonSymbolic {
       is >> id;
       numberExpression = NumberExpression<Number>(id);
     } else {
-      int constant;
+      Number constant;
       is >> constant;
       numberExpression = NumberExpression<Number>::constant(constant);
     }
