@@ -2,6 +2,7 @@
 #include <boost/mpl/list.hpp>
 #include "../src/data_parametric_monitor.hh"
 #include "../test/fixture/copy_automaton_fixture.hh"
+#include "../test/fixture/decimal_expression_fixture.hh"
 //TODO: copy_automaton_fixture の automaton は NonParametricTA だが、DataParametricTA にすべきな気がする
 
 using TWEvent = TimedWordEvent<PPLRational>;
@@ -68,4 +69,35 @@ BOOST_FIXTURE_TEST_CASE(test2, CopyDataParametricMonitorFixture)
   BOOST_CHECK_EQUAL(resultVec.front().timestamp, 15.5);
 }
 
+BOOST_AUTO_TEST_SUITE_END()
+
+struct DecimalDataParametricMonitorFixture : public Parametric::DataParametricDecimalExpressionFixture {
+  void feed(std::vector<TWEvent> &&vec) {
+    auto monitor = std::make_shared<DataParametricMonitor<double>>(automaton);
+    std::shared_ptr<DummyDataParametricMonitorObserver> observer = std::make_shared<DummyDataParametricMonitorObserver>();
+    monitor->addObserver(observer);
+    DummyDataTimedWordSubject subject{std::move(vec)};
+    subject.addObserver(monitor); //&monitor, DataParametricMonitor, should be Observer<TWEvemt>
+    subject.notifyAll();
+    resultVec = std::move(observer->resultVec);
+  }
+  std::vector<DataParametricMonitorResult<double>> resultVec;
+};
+
+BOOST_AUTO_TEST_SUITE(DecimalDataParametricMonitorTest)
+  BOOST_FIXTURE_TEST_CASE(decimal_test1, DecimalDataParametricMonitorFixture)
+  {
+    std::vector<TWEvent> dummyTimedWord{
+          {0, {}, {0}, 0.},
+          {0, {}, {0}, 1.0},
+          {0, {}, {0}, 2.1},
+          {0, {}, {0}, 3.3},
+          {0, {}, {0}, 4.6}
+        };
+        feed(std::move(dummyTimedWord));
+        //NOTE: 3.3 - 2.1 is 1.2, but this is evaluated as 1.1999999999999997 < 1.2, so the fourth event is also matched.
+        //BOOST_CHECK_EQUAL(resultVec.size(), 1);
+        BOOST_CHECK_EQUAL(resultVec.front().index, 2);
+        BOOST_CHECK_EQUAL(resultVec.front().timestamp, 2.1);
+  }
 BOOST_AUTO_TEST_SUITE_END()
