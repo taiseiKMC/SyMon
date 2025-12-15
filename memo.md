@@ -20,6 +20,8 @@
   * tree-sitter-symon が要る
     * grammar を定義
     * https://github.com/MasWag/tree-sitter-symon
+    * nodejs (多分 v18<=), g++ -std=c++20 が必要
+    * 文法は grammar.js を編集する. src 以下のファイルは `tree-sitter generate` で自動生成する
 
   * option
     * formatter : https://github.com/MasWag/symon-format
@@ -128,6 +130,11 @@ https://github.com/MasWag/SyMon/issues/
 * symon_parser.hh
   * TimeConstraint の型で処理を分岐する箇所がある
     * SFINAE とかで内部分岐というよりは外側で分岐した方が良い気がする
+  * "str" は parser で 'str' に変換される
+  * x0 = 0 は parser で x == 0 に, x0 <> 0 は x != 0 に変換される
+
+* PPL の諸々は IO_Operators を使うと入出力できるかもしれない
+  `using Parma_Polyhedra_Library::IO_Operators::operator<<;`
 
 # MTG Note
 ## 10/19
@@ -146,6 +153,3 @@ https://github.com/MasWag/SyMon/issues/
   * dot ファイルには x0 だったり p0 だったりで記述してあるが... 違いは？
     * 非決定的な変数は dot では p0 で記述するが、symon 記法だと区別せず variable で書く みたいな感じ？
 
-
-b src/parametric_timing_constraint_helper.hh:134
-r -pnf ../example/decimal-timing-constraint/decimal-timing-constraint.symon < ../example/decimal-timing-constraint/decimal-timing-constraint.txt
