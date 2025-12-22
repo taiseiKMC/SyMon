@@ -16,6 +16,8 @@ namespace Parma_Polyhedra_Library {
   }
 } // namespace Parma_Polyhedra_Library
 
+using namespace Parma_Polyhedra_Library::IO_Operators;
+
 #include <boost/unordered_set.hpp>
 
 template <typename Timestamp>
@@ -51,6 +53,7 @@ public:
     const std::vector<std::string> &strings = event.strings;
     const std::vector<PPLRational> &numbers = event.numbers;
     const Timestamp timestamp = event.timestamp;
+    std::cout<<"Event:"<<actionId<<","<<timestamp<<","<<strings<<","<<numbers<<std::endl;
     boost::unordered_set<Configuration> nextConfigurations;
     boost::unordered_set<Configuration> currentConfigurations;
     for (Configuration conf: configurations) {
@@ -99,6 +102,10 @@ public:
               this->notifyObservers({index, absTime, nextNEnv, nextSEnv});
             }
             configurations.insert({transition.target.lock(), nextCVal, nextSEnv, nextNEnv, absTime});
+            std::cout<<"Insert:"<<transition.target.lock()<<","
+              <<nextCVal<<","
+              <<nextSEnv<<","
+              <<nextNEnv<<","<<absTime<<std::endl;
           }
         }
       }
@@ -110,6 +117,19 @@ public:
     for (const Configuration &conf: configurations) {
       // make the current env
       auto clockValuation = std::get<1>(conf); //.clockValuation;
+      const auto absTime = std::get<4>(conf);
+      std::cout<<"Trans:"<<std::get<0>(conf)<<","
+              <<std::get<1>(conf)<<","
+              <<std::get<2>(conf)<<","
+              <<std::get<3>(conf)<<","<<absTime<<std::endl;
+      if(timestamp < absTime) {
+        std::cout<<"Next:"<<std::get<0>(conf)<<","
+              <<std::get<1>(conf)<<","
+              <<std::get<2>(conf)<<","
+              <<std::get<3>(conf)<<","<<absTime<<std::endl;
+        nextConfigurations.insert(conf);
+        continue;
+      }
       for (Timestamp &d: clockValuation) {
         d += timestamp - absTime;
       }
@@ -142,6 +162,10 @@ public:
           transition.update.execute(nextSEnv, nextNEnv);
           nextSEnv.resize(automaton.stringVariableSize);
           nextNEnv.remove_higher_space_dimensions(automaton.numberVariableSize);
+          std::cout<<"Next:"<<transition.target.lock()<<","
+              <<nextCVal<<","
+              <<nextSEnv<<","
+              <<nextNEnv<<","<<timestamp<<std::endl;
           nextConfigurations.insert({transition.target.lock(), std::move(nextCVal), nextSEnv, nextNEnv, timestamp});
           if (transition.target.lock()->isMatch) {
             this->notifyObservers({index, timestamp, nextNEnv, nextSEnv});

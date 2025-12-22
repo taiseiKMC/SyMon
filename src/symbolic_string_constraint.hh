@@ -4,6 +4,7 @@
 #include <string>
 #include <variant>
 #include <vector>
+#include <iostream>
 
 #include "common_types.hh"
 
@@ -127,3 +128,28 @@ namespace Symbolic {
     const StringAtom first;
   };
 } // namespace Symbolic
+
+
+  static std::ostream &operator<<(std::ostream &os, const Symbolic::StringValuation &env) {
+    os << "{";
+    for (size_t i = 0; i < env.size(); ++i) {
+      if (i > 0) {
+        os << ", ";
+      }
+      if (env[i].index() == 0) {
+        os << "[";
+        const auto &disabledStrings = std::get<0>(env[i]);
+        for (size_t j = 0; j < disabledStrings.size(); ++j) {
+          if (j > 0) {
+            os << ", ";
+          }
+          os << "\"" << disabledStrings[j] << "\"";
+        }
+        os << "]";
+      } else {
+        os << "\"" << std::get<std::string>(env[i]) << "\"";
+      }
+    }
+    os << "}";
+    return os;
+  }

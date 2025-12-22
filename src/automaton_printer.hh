@@ -58,7 +58,7 @@ operator<<(std::ostream &os,
            const Automaton<AutomatonState<StringConstraint, NumberConstraint, TimingConstraint, Update>> &automaton) {
   std::vector<std::tuple<bool, bool>> stateIds(automaton.states.size());
   for (size_t i = 0; i < automaton.states.size(); ++i) {
-    os << i << " [init="
+    os << i << " " << automaton.states[i].get() << " [init="
        << to_string(std::find(automaton.initialStates.begin(), automaton.initialStates.end(), automaton.states[i]) !=
                     automaton.initialStates.end())
        << "][match=" << to_string(automaton.states[i]->isMatch)
