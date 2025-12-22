@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cstdint>
+#include <optional>
 #include <vector>
 
 #include "common_types.hh"
@@ -13,7 +14,7 @@ inline bool toBool(Order odr) {
   return odr == Order::EQ;
 }
 
-enum class TimingConstraintOrder { lt, le, ge, gt };
+enum class TimingConstraintOrder { lt, le, ge, gt, eq };
 
 //! @brief A constraint in a guard of transitions
 template <typename Timestamp>
@@ -32,6 +33,8 @@ struct TimingConstraint {
         return d > c;
       case TimingConstraintOrder::ge:
         return d >= c;
+      case TimingConstraintOrder::eq:
+        return d == c;
     }
     return false;
   }
@@ -90,6 +93,11 @@ public:
   TimingConstraint<Timestamp> operator>=(Timestamp c) {
     return TimingConstraint<Timestamp>{x, TimingConstraintOrder::ge, c};
   }
+
+  template<typename Timestamp = double>
+  TimingConstraint<Timestamp> operator==(Timestamp c) {
+    return TimingConstraint<Timestamp>{x, TimingConstraintOrder::eq, c};
+  }
 };
 
 /*!
@@ -109,6 +117,22 @@ static bool eval(const TimingValuation<Timestamp> &clockValuation, const std::ve
   return std::all_of(guard.begin(), guard.end(),
                      [&clockValuation](const TimingConstraint<Timestamp> &g) { return g.satisfy(clockValuation.at(g.x)); });
   // g.x : clock variable
+}
+
+template<typename Timestamp>
+static std::optional<Timestamp> diff(const TimingValuation<Timestamp> &clockValuation, const std::vector<TimingConstraint<Timestamp>> &guard) {
+  std::optional<Timestamp> result = std::nullopt;
+  for(auto&& g: guard) {
+    if(g.odr != TimingConstraintOrder::eq) return std::nullopt;
+    auto diff = g.c - clockValuation.at(g.x);
+
+    if(!result) {
+      result = diff;
+    } else if(*result != diff) {
+      return std::nullopt;
+    }
+  }
+  return result;
 }
 
 /*!
