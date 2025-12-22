@@ -32,7 +32,6 @@ class DataParametricMonitor : public SingleSubject<DataParametricMonitorResult<T
 public:
   static const constexpr std::size_t unobservableActionID = 127;
   explicit DataParametricMonitor(const DataParametricTA<Timestamp> &automaton) : automaton(automaton) {
-    absTime = 0;
     configurations.clear();
     // configurations.reserve(automaton.initialStates.size());
     std::vector<Timestamp> initCVal(automaton.clockVariableSize);
@@ -41,7 +40,7 @@ public:
     // by default, initNEnv is the universe of dimension automaton.numberVariableSize
     Symbolic::NumberValuation initNEnv(automaton.numberVariableSize);
     for (const auto &initialState: automaton.initialStates) {
-      configurations.insert({initialState, initCVal, initSEnv, initNEnv});
+      configurations.insert({initialState, initCVal, initSEnv, initNEnv, 0});
     }
   }
 
@@ -53,10 +52,11 @@ public:
     const std::vector<PPLRational> &numbers = event.numbers;
     const Timestamp timestamp = event.timestamp;
     boost::unordered_set<Configuration> nextConfigurations;
-    /*
     boost::unordered_set<Configuration> currentConfigurations;
-    boost::unordered_set<Configuration> nextConfigurations;
-
+    for (Configuration conf: configurations) {
+      // add a new dimension for time elapse.
+      currentConfigurations.insert(std::move(conf));
+    }
     while (!currentConfigurations.empty()) {
       nextConfigurations.clear();
       for (const Configuration &conf: currentConfigurations) {
@@ -66,56 +66,46 @@ public:
           continue;
         }
         // make the current env
-        auto clockValuation = std::get<1>(conf);
-        //clockValuation.time_elapse_assign(elapsePolyhedron);
-        //clockValuation.add_constraint(
-        //    Parma_Polyhedra_Library::Variable(automaton.parameterSize + automaton.clockVariableSize) *
-        //        dwellTime.getDenominator() <=
-        //    dwellTime.getNumerator());
+        const auto clockValuation = std::get<1>(conf);
         const auto stringEnv = std::get<2>(conf);
         const auto numberEnv = std::get<3>(conf);
+        auto absTime = std::get<4>(conf);
         for (const auto &transition: transitionIt->second) {
           // evaluate the guards
           auto nextCVal = clockValuation;
           auto nextSEnv = stringEnv;
           auto nextNEnv = numberEnv;
           auto extendedGuard = transition.guard;
-          extendedGuard.add_space_dimensions_and_embed(1);
+          
+          // clock の guard に, 不等式による制約がないことを仮定する
+          auto df = diff(nextCVal, extendedGuard);
+          // FIXME: when(= 1), when(=2) があると, d + 1 + 2 されて absTime になってしまう
+          if(!df) {
+            throw std::runtime_error("DataParametricMonitor: unsupported guard with inequality constraints on unobservable transition");
+          }
+          for (Timestamp &d: nextCVal) {
+            d += df.value();
+          }
+          absTime += df.value();
+
           if (eval(nextCVal, extendedGuard) &&
               eval(transition.stringConstraints, nextSEnv, transition.numConstraints, nextNEnv)) {
             for (const VariableID resetVar: transition.resetVars) {
-              //nextCVal.affine_image(Parma_Polyhedra_Library::Variable(automaton.parameterSize + resetVar),
-              //                      Parma_Polyhedra_Library::Linear_Expression(0));
               nextCVal[resetVar] = 0;
             }
             transition.update.execute(nextSEnv, nextNEnv);
-            nextConfigurations.insert({transition.target.lock(), nextCVal, nextSEnv, nextNEnv});
+            nextConfigurations.insert({transition.target.lock(), nextCVal, nextSEnv, nextNEnv, absTime});
             if (transition.target.lock()->isMatch) {
-              auto tmpNCV = nextCVal;
-              tmpNCV.remove_higher_space_dimensions(automaton.parameterSize + automaton.clockVariableSize);
-              notifyObservers({index, absTime, nextNEnv, nextSEnv, tmpNCV});
+              this->notifyObservers({index, absTime, nextNEnv, nextSEnv});
             }
-            // time elapse
-            for (std::size_t i = 0; i < automaton.clockVariableSize; i++) {
-              //! @todo Currently, the timestamp is mpz (integer). I will make it mpq (quadratic) later.
-              nextCVal.affine_image(
-                  Parma_Polyhedra_Library::Variable(automaton.parameterSize + i),
-                  Parma_Polyhedra_Library::Variable(automaton.parameterSize + i) * dwellTime.getDenominator() +
-                      dwellTime.getNumerator() -
-                      Parma_Polyhedra_Library::Variable(automaton.parameterSize + automaton.clockVariableSize) *
-                          dwellTime.getDenominator(),
-                  dwellTime.getDenominator());
-            }
-            //nextCVal.remove_higher_space_dimensions(automaton.parameterSize + automaton.clockVariableSize);
-            configurations.insert({transition.target.lock(), nextCVal, nextSEnv, nextNEnv});
+            configurations.insert({transition.target.lock(), nextCVal, nextSEnv, nextNEnv, absTime});
           }
         }
       }
 
       std::swap(currentConfigurations, nextConfigurations);
     }
-
-    */
+    nextConfigurations.clear();
 
     for (const Configuration &conf: configurations) {
       // make the current env
@@ -152,14 +142,13 @@ public:
           transition.update.execute(nextSEnv, nextNEnv);
           nextSEnv.resize(automaton.stringVariableSize);
           nextNEnv.remove_higher_space_dimensions(automaton.numberVariableSize);
-          nextConfigurations.insert({transition.target.lock(), std::move(nextCVal), nextSEnv, nextNEnv});
+          nextConfigurations.insert({transition.target.lock(), std::move(nextCVal), nextSEnv, nextNEnv, timestamp});
           if (transition.target.lock()->isMatch) {
             this->notifyObservers({index, timestamp, nextNEnv, nextSEnv});
           }
         }
       }
     }
-    absTime = timestamp;
     index++;
     configurations = std::move(nextConfigurations);
   }
@@ -167,7 +156,7 @@ public:
 private:
   const DataParametricTA<Timestamp> automaton;
   using Configuration = std::tuple<std::shared_ptr<DataParametricTAState<Timestamp>>, std::vector<Timestamp>,
-                                   Symbolic::StringValuation, Symbolic::NumberValuation>;
+                                   Symbolic::StringValuation, Symbolic::NumberValuation, Timestamp>;
   // Symbolic::NumberValuation>;
   /*  struct Configuration {
       std::shared_ptr<DataParametricTAState> state;
@@ -176,6 +165,5 @@ private:
       Symbolic::NumberValuation numberEnv;
     };*/
   boost::unordered_set<Configuration> configurations;
-  Timestamp absTime;
   std::size_t index = 0;
 };
