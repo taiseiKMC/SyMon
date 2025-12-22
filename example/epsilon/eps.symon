@@ -8,15 +8,11 @@ signature event {
 
 (event(id))*;
 event( id | id == "a");
-within (> 1) {
-    within (< 2) {
+within (= 1) {
         unobservable(| value == "z")
-    }
 };
-within (> 1) {
-    within (< 2) {
+within (= 2) {
         unobservable(| value == "z")
-    }
 };
 within (> 4) {
     event( id | id == "b")
