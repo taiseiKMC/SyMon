@@ -9,6 +9,9 @@
 #include "symbolic_update.hh"
 #include "timed_word_parser.hh"
 #include "timed_word_subject.hh"
+#include "io_operators.hh"
+
+#include <iostream>
 
 namespace Parma_Polyhedra_Library {
   static inline std::size_t hash_value(const Symbolic::NumberValuation &p) {
