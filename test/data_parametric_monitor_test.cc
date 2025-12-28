@@ -3,6 +3,7 @@
 #include "../src/data_parametric_monitor.hh"
 #include "../test/fixture/copy_automaton_fixture.hh"
 #include "../test/fixture/decimal_expression_fixture.hh"
+#include "../test/fixture/epsilon_transition_automaton_fixture.hh"
 //TODO: copy_automaton_fixture の automaton は NonParametricTA だが、DataParametricTA にすべきな気がする
 
 using TWEvent = TimedWordEvent<PPLRational>;
@@ -83,5 +84,31 @@ BOOST_FIXTURE_TEST_CASE(decimal_test1, DataParametricMonitorFixture)
       //BOOST_CHECK_EQUAL(resultVec.size(), 1);
       BOOST_CHECK_EQUAL(resultVec.front().index, 2);
       BOOST_CHECK_EQUAL(resultVec.front().timestamp, 2.1);
+}
+
+BOOST_FIXTURE_TEST_CASE(epsilon_test1, DataParametricMonitorFixture)
+{
+  auto automaton = EpsilonTransitionAutomatonFixture().makeDataParametricTA();
+
+  std::vector<TWEvent> timedWord{
+        {0, {"c"}, {}, 1},
+        {0, {"a"}, {}, 10},
+        {0, {"b"}, {}, 12},
+        {0, {"b"}, {}, 15},
+        {0, {"c"}, {}, 20},
+        {0, {"a"}, {}, 32},
+        {0, {"b"}, {}, 40},
+        {0, {"c"}, {}, 42},
+        {0, {"a"}, {}, 51.5},
+        {0, {"b"}, {}, 52},
+        {0, {"a"}, {}, 53},
+        {0, {"b"}, {}, 54},
+        {0, {"c"}, {}, 55},
+      };
+      feed(automaton, std::move(timedWord));
+
+      BOOST_CHECK_EQUAL(resultVec.size(), 1);
+      BOOST_CHECK_EQUAL(resultVec.front().index, 6);
+      BOOST_CHECK_EQUAL(resultVec.front().timestamp, 40);
 }
 BOOST_AUTO_TEST_SUITE_END()
