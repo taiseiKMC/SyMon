@@ -132,6 +132,9 @@ https://github.com/MasWag/SyMon/issues/
     * SFINAE とかで内部分岐というよりは外側で分岐した方が良い気がする
   * "str" は parser で 'str' に変換される
   * x0 = 0 は parser で x == 0 に, x0 <> 0 は x != 0 に変換される
+  * parseExpr
+    * tree-sitter の構文で分岐
+    * 関数は Automaton そのものを返し, 再帰的に合成する(!?)
 
 * PPL の諸々は IO_Operators を使うと入出力できるかもしれない
   `using Parma_Polyhedra_Library::IO_Operators::operator<<;`
